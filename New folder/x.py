@@ -1,4 +1,5 @@
 import pgzrun
+import random
 import os
 
 os.environ["SDL_VIDEO_CENTERED"] = "1"
@@ -7,11 +8,13 @@ WIDTH = 1000
 HEIGHT = 700
 TITLE = "Car Game"
 
+list_cars = ["car" , "car1" , "car2"]
+
 background_menu = Actor("background" , (500 , 350))
 start_button = Actor("button_start" , (500 , 350))
 background_game = Actor("background_game" , (500 , 350))
 back_button = Actor("button_back" , (100 , 100))
-car = Actor("car" , (500 , 100))
+car = Actor(random.choice(list_cars) , (500 , 100))
 polic = Actor("car" , (50 , 350))
 polic.angle = 90
 
@@ -19,9 +22,16 @@ game = False
 angle = False
 gameover = False
 speed = 5
+z = random.randint(1050 , 1300)
+score = 0
+speed_polic = 5
 
 def update():
-    global speed , gameover
+    global speed , gameover , x , score , speed_polic
+
+    def x():
+        global z
+        z = random.randint(1050 , 1300)
 
     if game:
         
@@ -32,6 +42,9 @@ def update():
 
         if car.y >= 750:
             car.y = -50
+            score += 1
+            speed_polic += 2
+            car.image = random.choice(list_cars)
 
         if angle and car.angle <= 85 and gameover == False:
             car.angle += 5
@@ -43,15 +56,20 @@ def update():
             speed = 5
 
         if gameover == False:
-            polic.x += 5
+            polic.x += speed_polic
         else:
             speed = 0
 
-        if polic.x >= 1050:
+        if polic.x >= z:
+            x()
             polic.x = -50
 
         if car.colliderect(polic):
             gameover = True
+
+    print(z)
+
+    sounds.mester.play()
 
 def draw():
     global menu
@@ -67,8 +85,10 @@ def draw():
         car.draw()
         polic.draw()
 
+        screen.draw.text(f"score : {score}" , fontsize = 50 , topleft = (800 , 50) , color = "black")
+
 def on_mouse_down(pos):
-    global game , gameover , speed
+    global game , gameover , speed , score
 
     if start_button.collidepoint(pos):
         game = True
@@ -77,6 +97,7 @@ def on_mouse_down(pos):
         car.angle = 0
         car.y = 100
         polic.x = 50
+        score = 0
 
     if back_button.collidepoint(pos):
         game = False
